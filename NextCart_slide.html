@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NextCart — ADDI Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f4ef;
+    --ink: #1a1612;
+    --muted: #9a9288;
+    --accent1: #e8663d;  /* warm orange */
+    --accent2: #2d6a4f;  /* forest green */
+    --accent3: #c9a84c;  /* amber gold */
+    --surface: #efeae3;
+    --border: rgba(26,22,18,0.1);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* Subtle dot grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(circle, rgba(26,22,18,0.08) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Animated cart path */
+  .cart-path {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.06;
+  }
+
+  .cart-path svg {
+    width: 100%; height: 100%;
+  }
+
+  /* Warm gradient blob */
+  .blob {
+    position: fixed;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,102,61,0.08), transparent 70%);
+    top: -100px; right: -100px;
+    pointer-events: none;
+    z-index: 0;
+    animation: blobPulse 6s ease-in-out infinite;
+  }
+
+  .blob2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(45,106,79,0.06), transparent 70%);
+    top: auto; right: auto;
+    bottom: -100px; left: -80px;
+    animation-delay: 3s;
+  }
+
+  @keyframes blobPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+  }
+
+  /* ── SLIDE ── */
+  .slide {
+    position: relative;
+    z-index: 10;
+    width: min(980px, 95vw);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 0;
+    animation: slideIn 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Top bar */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0 24px 0;
+    border-bottom: 1px solid var(--border);
+    animation: fadeUp 0.8s 0.2s both;
+  }
+
+  .tag {
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .author-tag {
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  /* Main content */
+  .main {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 64px;
+    padding: 52px 0;
+    align-items: center;
+  }
+
+  /* Left */
+  .left { }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.8s 0.4s both;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent1);
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes dotPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+  }
+
+  .eyebrow-text {
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    color: var(--accent1);
+    text-transform: uppercase;
+  }
+
+  .title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(64px, 9vw, 96px);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    animation: fadeUp 0.8s 0.5s both;
+  }
+
+  .title .next {
+    color: var(--accent1);
+    font-style: italic;
+  }
+
+  .title-sub {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(64px, 9vw, 96px);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+  }
+
+  .divider-line {
+    width: 48px; height: 2px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent3));
+    margin: 24px 0;
+    animation: fadeUp 0.8s 0.6s both;
+  }
+
+  .tagline {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    line-height: 1.6;
+    animation: fadeUp 0.8s 0.65s both;
+  }
+
+  /* Right */
+  .right {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.8s both;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    border-radius: 12px 0 0 12px;
+  }
+
+  .card.meaning::before { background: var(--accent1); }
+  .card.objective::before { background: var(--accent2); }
+
+  .card.meaning { animation-delay: 0.7s; }
+  .card.objective { animation-delay: 0.85s; }
+
+  .card-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .card.meaning .card-label { color: var(--accent1); }
+  .card.objective .card-label { color: var(--accent2); }
+
+  .card-text {
+    font-size: 13.5px;
+    font-weight: 300;
+    color: #4a4540;
+    line-height: 1.7;
+  }
+
+  .card-text strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Bottom strip */
+  .bottombar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0 0 0;
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.8s 1.0s both;
+  }
+
+  .metrics {
+    display: flex;
+    gap: 36px;
+  }
+
+  .metric { display: flex; flex-direction: column; gap: 3px; }
+
+  .metric-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .metric-value.orange { color: var(--accent1); }
+  .metric-value.green { color: var(--accent2); }
+  .metric-value.gold { color: var(--accent3); }
+
+  .metric-label {
+    font-size: 9px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .date-tag {
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="blob"></div>
+<div class="blob blob2"></div>
+
+<!-- Subtle grid lines decoration -->
+<div class="cart-path">
+  <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
+    <path d="M 0 300 Q 250 200 500 300 T 1000 300" stroke="rgba(26,22,18,1)" stroke-width="0.5" fill="none"/>
+    <path d="M 0 350 Q 250 250 500 350 T 1000 350" stroke="rgba(26,22,18,1)" stroke-width="0.5" fill="none"/>
+  </svg>
+</div>
+
+<div class="slide">
+
+  <!-- TOP -->
+  <div class="topbar">
+    <div class="tag">E-Commerce Recommender &nbsp;·&nbsp; ADDI Shop &nbsp;·&nbsp; Solution Proposal</div>
+    <div class="author-tag">Mateo Contreras &nbsp;·&nbsp; Marzo 2026</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="left">
+      <div class="eyebrow">
+        <div class="dot"></div>
+        <div class="eyebrow-text">Sequential Purchase Intelligence</div>
+      </div>
+
+      <div class="title">
+        <span class="next">Next</span>Cart
+      </div>
+
+      <div class="divider-line"></div>
+
+      <div class="tagline">
+        Most engines tell you what's popular.<br>
+        NextCart tells you what's <em>next</em>.
+      </div>
+    </div>
+
+    <div class="right">
+
+      <div class="card meaning">
+        <div class="card-label">What is NextCart</div>
+        <div class="card-text">
+          Built on <strong>sequential purchase patterns</strong> and price behavior, NextCart predicts the natural next step in each client's shopping journey — surfacing the right product at the right moment.
+        </div>
+      </div>
+
+      <div class="card objective">
+        <div class="card-label">Objective</div>
+        <div class="card-text">
+          Generate <strong>top 10 Amazon product recommendations</strong> per client by bridging KZ purchase history with an Amazon catalog — connecting two datasets with no shared vocabulary.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="bottombar">
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-value orange">10K</div>
+        <div class="metric-label">Amazon Products</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value green">510</div>
+        <div class="metric-label">KZ Categories</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value gold">Top 10</div>
+        <div class="metric-label">Recs per Client</div>
+      </div>
+    </div>
+    <div class="date-tag">ADDI Colombia &nbsp;·&nbsp; Shop Challenge</div>
+  </div>
+
+</div>
+
+</body>
+</html>
